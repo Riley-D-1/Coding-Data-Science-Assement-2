@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f9f9f9;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+}
+
+.dropdown-content label {
+  display: block;
+  margin-top: 10px;
+}
+
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+</style>
+</head>
+<body>
+
+<div class="dropdown">
+  <button>Select Fruits</button>
+  <div class="dropdown-content">
+    <label><input type="checkbox" name="fruits" value="apple"> Apple</label>
+    <label><input type="checkbox" name="fruits" value="orange"> Orange</label>
+    <label><input type="checkbox" name="fruits" value="banana"> Banana</label>
+    <label><input type="checkbox" name="fruits" value="grape"> Grape</label>
+  </div>
+</div>
+
+<script>
+
+function getSelectedFruits() {
+  var checkboxes = document.querySelectorAll('.dropdown-content input[type="checkbox"]');
+  var selectedFruits = [];
+  checkboxes.forEach(function(checkbox) {
+    if (checkbox.checked) {
+      selectedFruits.push(checkbox.value);
+    }
+  });
+  return selectedFruits;
+}
+
+
+</script>
+
+</body>
+</html>
