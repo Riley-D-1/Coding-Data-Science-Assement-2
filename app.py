@@ -3,9 +3,7 @@ import requests
 import pandas as pd
 import matplotlib.pyplot as plt
 from flask import Flask, render_template, request, redirect, url_for
-from datetime import datetime
 import os
-import random
 
 # Variable setting and Flask initialization
 #Probs need to do an API key that reads from an .env file (wont commit cause of a gitignore bypass)
@@ -62,12 +60,12 @@ def plot():
     #Convert to DataFrame for Pandas
     df = pd.DataFrame(prices, columns=['Timestamp', 'Price'])
     df.to_csv("data-saves/backup_data.csv")
-
+    # Make sure this works
     coin_id = ""
     for coin in selected_coins:
         coin_id+= f"{coin}'s +"
-        if coin_id != "" or selected_coins =="":
-            coid_id+= "+"
+        if coin_id != "" or selected_coins == "":
+            coid_id += "+"
 
     # This plots the data displayed to a plot in the background (doesn't show)
     plt.figure(figsize=(10, 5))
