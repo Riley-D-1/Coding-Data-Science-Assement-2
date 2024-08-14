@@ -11,7 +11,7 @@ app = Flask(__name__)
 api_key="CG-783zRcwthfgXwDRyAaZfyekn"
 
 # Function defining
-def get_coins(currency):
+def get_coins(currency,days):
     url = 'https://api.coingecko.com/api/v3/coins/markets'
     params = {
         'vs_currency': currency,
@@ -25,9 +25,17 @@ def get_coins(currency):
             'vs_currency': currency,
             'id': '6',
             'precision': '5',
-            "x-cg-pro-api-key": ""
-        }
+            'x-cg-pro-api-key': api_key,
+            'days': days,
+            'interval': 'daily',
         
+        }
+        url2=f"https://api.coingecko.com/api/v3/coins/{coin_id}/market_chart"
+
+        for coin_id in response:
+            
+            response=requests.get(url2,params=params2)
+
         df 
         return response
     except requests.RequestException:
@@ -40,7 +48,7 @@ def get_coins(currency):
 # Flask routing
 @app.route('/')
 def home():
-    items = get_coins("USD")
+    items = get_coins("USD",30)
     return render_template('index.html', items=items)
 
 @app.route('/info')
@@ -52,14 +60,15 @@ def plot():
     # Retrieve selected coins and number of days from the form
     selected_coins = request.form.getlist('coins')
     days = request.form.get('days', '30')
+    # Default to 30 days if no value is provided
     currency = "USD"
     
     # currency = request.form.get() maybe add this
-    # Default to 30 days if no value is provided
+    
     # Redirecter in case you try to glitch the application (type in a link)
     if not selected_coins:
         return redirect(url_for('home'))
-    coins_data = get_coins(currency)
+    coins_data = get_coins(currency,days)
     csv_df = pd.DataFrame(columns=['Coin Id','Timestamp', 'Price'])
     csv_df.to_csv("data-saves/backup_data.csv")
     #if 'prices' not in coins_data:
