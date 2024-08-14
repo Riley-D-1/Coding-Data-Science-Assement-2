@@ -20,15 +20,17 @@ def get_coins(currency):
     }
     try:
         response = requests.get(url, params=params)
-        response.raise_for_status()
-        return response.json()
+        url = "https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=36545&interval=daily&precision=5"
+
+        
+        df 
+        return response
     except requests.RequestException:
         # Fallback to reading from a csv file if the API request fails
-        if os.path.exists('data-saves/backup_data.csv'):
-            df = pd.read_csv('data-saves/backup_data.csv')
-            # another weird line that may work but it gives back the data organised in a particaulr way so that the program doesn't have to remove heaps
-            return df.to_dict(orient='records')
-        print("Error fetching data from CoinGecko and no backup data available", 500)
+        if os.path.exists('data-saves/backup_coin_list.csv'):
+            df = pd.read_csv('data-saves/backup_data.csv', on_bad_lines='warn')
+            return df
+        return("Error fetching data from CoinGecko and no backup data available", 500)
 
 # Flask routing
 @app.route('/')
@@ -46,33 +48,36 @@ def plot():
     selected_coins = request.form.getlist('coins')
     days = request.form.get('days', '30')
     currency = "USD"
+    
     # currency = request.form.get() maybe add this
     # Default to 30 days if no value is provided
     # Redirecter in case you try to glitch the application (type in a link)
     if not selected_coins:
         return redirect(url_for('home'))
+    coins_data = get_coins(currency)
+    csv_df = pd.DataFrame(columns=['Coin Id','Timestamp', 'Price'])
+    csv_df.to_csv("data-saves/backup_data.csv")
+    #if 'prices' not in coins_data:
+    #    return "Invalid data format received from CoinGecko", 500
 
-    if 'prices' not in get_coins(currency):
-        return "Invalid data format received from CoinGecko", 500
-
-    prices = get_coins(currency)['prices']
+    #when using the inbuilt debugging i found a major flaw it needs a coin to display all the prices
+    prices = coins_data['prices']
 
     #Convert to DataFrame for Pandas
     df = pd.DataFrame(prices, columns=['Timestamp', 'Price'])
-    df.to_csv("data-saves/backup_data.csv")
+    
     # Make sure this works
     coin_id = ""
     for coin in selected_coins:
         coin_id+= f"{coin}'s +"
-        if coin_id != "" or selected_coins == "":
-            coid_id += "+"
+
 
     # This plots the data displayed to a plot in the background (doesn't show)
     plt.figure(figsize=(10, 5))
     df.plot(
         kind='line',
-        x='timestamp',
-        y='price',
+        x='Timestamp',
+        y='Price',
         color='blue',
         alpha=0.9,
         # This is needing a change (thought I changed this but apparently not) 
