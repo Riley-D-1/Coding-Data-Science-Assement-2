@@ -20,9 +20,7 @@ def get_coins(currency):
     }
     try:
         response = requests.get(url, params=params)
-        url = "https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=36545&interval=daily&precision=5"
-
-        
+              
         df 
         return response
     except requests.RequestException:
