@@ -8,6 +8,7 @@ import os
 # Variable setting and Flask initialization
 #Probs need to do an API key that reads from an .env file (wont commit cause of a gitignore bypass)
 app = Flask(__name__)
+api_key="CG-783zRcwthfgXwDRyAaZfyekn"
 
 # Function defining
 def get_coins(currency):
@@ -20,7 +21,13 @@ def get_coins(currency):
     }
     try:
         response = requests.get(url, params=params)
-              
+        params2= {
+            'vs_currency': currency,
+            'id': '6',
+            'precision': '5',
+            "x-cg-pro-api-key": ""
+        }
+        
         df 
         return response
     except requests.RequestException:
