@@ -11,7 +11,7 @@ app = Flask(__name__)
 api_key="CG-783zRcwthfgXwDRyAaZfyekn"
 
 # Function defining
-def get_coins(currency,days):
+def get_coins(currency):
     url = 'https://api.coingecko.com/api/v3/coins/markets'
     params = {
         'vs_currency': currency,
@@ -21,23 +21,35 @@ def get_coins(currency,days):
     }
     try:
         response = requests.get(url, params=params)
-        params2= {
-            'vs_currency': currency,
-            'id': '6',
-            'precision': '5',
-            'x-cg-pro-api-key': api_key,
-            'days': days,
-            'interval': 'daily',
+        response.json() == coins_df
+        coins_df = pd.DataFrame(columns=['Coin Id'])
+        return coins_df
+    except requests.RequestException:
+        # Fallback to reading from a csv file if the API request fails
+        if os.path.exists('data-saves/backup_coin_list.csv'):
+            df = pd.read_csv('data-saves/backup_coin_list.csv', on_bad_lines='warn')
+            return df
+        return("Error fetching data from CoinGecko and no backup data available", 500)
+
+
+def get_coins_data(currency,days):
+    params2= {
+                'vs_currency': currency,
+                'id': '6',
+                'precision': '5',
+                'x-cg-pro-api-key': api_key,
+                'days': days,
+                'interval': 'daily',
         
         }
-        url2=f"https://api.coingecko.com/api/v3/coins/{coin_id}/market_chart"
-
+    
+    url2=f"https://api.coingecko.com/api/v3/coins/{coin_id}/market_chart"
+    try:
         for coin_id in response:
-            
             response=requests.get(url2,params=params2)
-
-        df 
-        return response
+        
+        coins_df = pd.DataFrame(columns=['Coin Id'])
+        return coins_df
     except requests.RequestException:
         # Fallback to reading from a csv file if the API request fails
         if os.path.exists('data-saves/backup_coin_list.csv'):
@@ -45,10 +57,12 @@ def get_coins(currency,days):
             return df
         return("Error fetching data from CoinGecko and no backup data available", 500)
 
+
+
 # Flask routing
 @app.route('/')
 def home():
-    items = get_coins("USD",30)
+    items = get_coins("USD")
     return render_template('index.html', items=items)
 
 @app.route('/info')
@@ -68,12 +82,11 @@ def plot():
     # Redirecter in case you try to glitch the application (type in a link)
     if not selected_coins:
         return redirect(url_for('home'))
-    coins_data = get_coins(currency,days)
+    coins_data = get_coins(currency)
     csv_df = pd.DataFrame(columns=['Coin Id','Timestamp', 'Price'])
     csv_df.to_csv("data-saves/backup_data.csv")
     #if 'prices' not in coins_data:
     #    return "Invalid data format received from CoinGecko", 500
-
     #when using the inbuilt debugging i found a major flaw it needs a coin to display all the prices
     prices = coins_data['prices']
 
@@ -84,8 +97,6 @@ def plot():
     coin_id = ""
     for coin in selected_coins:
         coin_id+= f"{coin}'s +"
-
-
     # This plots the data displayed to a plot in the background (doesn't show)
     plt.figure(figsize=(10, 5))
     df.plot(
@@ -104,6 +115,6 @@ def plot():
     plt.close()
     return render_template('result.html', coin_id=coin_id, days=days, plot_path=plot_path, items=get_coins())
 #Main Loop
-# Because my code is laid in variables and the Flask routing the actual main loop is two lines and my code is super readable
+# Because my code is laid in variables and the Flask routing the actual main loop is two lines and my code is super readable debugging is left on for debugging purposes
 if __name__ == '__main__':
     app.run(debug=True)
