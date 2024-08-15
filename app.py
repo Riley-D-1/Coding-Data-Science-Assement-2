@@ -8,7 +8,8 @@ import os
 # Variable setting and Flask initialization
 #Probs need to do an API key that reads from an .env file (wont commit cause of a gitignore bypass)
 app = Flask(__name__)
-api_key="CG-783zRcwthfgXwDRyAaZfyekn"
+token_place=open("token.txt", "r")
+api_key= token_place.readline()
 
 # Function defining
 def get_coins(currency):
@@ -47,8 +48,7 @@ def get_coins_data(currency,days):
     try:
         for coin_id in response:
             response=requests.get(url2,params=params2)
-        
-        coins_df = pd.DataFrame(columns=['Coin Id'])
+        coins_df = pd.DataFrame(response,columns=['Coin Id'])
         return coins_df
     except requests.RequestException:
         # Fallback to reading from a csv file if the API request fails
