@@ -22,9 +22,11 @@ def get_coins(currency):
     }
     try:
         response = requests.get(url, params=params)
-        response.json() == coins_df
-        coins_df = pd.DataFrame(columns=['Coin Id'])
-        return coins_df
+        data = response.json()
+        coin_list_df = data["id"]
+        coin_list_df = pd.DataFrame(data,columns=['Coin Id'])
+        coin_list_df.to_csv('data-saves/backup_coin_list.csv')
+        return response.json()
     except requests.RequestException:
         # Fallback to reading from a csv file if the API request fails
         if os.path.exists('data-saves/backup_coin_list.csv'):
@@ -33,7 +35,7 @@ def get_coins(currency):
         return("Error fetching data from CoinGecko and no backup data available", 500)
 
 
-def get_coins_data(currency,days):
+def get_coins_data(currency,days,coin_list):
     params2= {
                 'vs_currency': currency,
                 'id': '6',
@@ -43,16 +45,16 @@ def get_coins_data(currency,days):
                 'interval': 'daily',
         
         }
-    
-    url2=f"https://api.coingecko.com/api/v3/coins/{coin_id}/market_chart"
     try:
-        for coin_id in response:
+        for coin_id in coin_list:
+            url2=f"https://api.coingecko.com/api/v3/coins/{coin_id}/market_chart"
             response=requests.get(url2,params=params2)
-        coins_df = pd.DataFrame(response,columns=['Coin Id'])
+        coins_df = pd.DataFrame(response,columns=['Coin Id','Timestamp','Price'])
+        coins_df.to_csv('data-saves/backup_data.csv')
         return coins_df
     except requests.RequestException:
         # Fallback to reading from a csv file if the API request fails
-        if os.path.exists('data-saves/backup_coin_list.csv'):
+        if os.path.exists('data-saves/backup_data.csv'):
             df = pd.read_csv('data-saves/backup_data.csv', on_bad_lines='warn')
             return df
         return("Error fetching data from CoinGecko and no backup data available", 500)
@@ -82,10 +84,8 @@ def plot():
     # Redirecter in case you try to glitch the application (type in a link)
     if not selected_coins:
         return redirect(url_for('home'))
-    coins_data = get_coins(currency)
-    csv_df = pd.DataFrame(columns=['Coin Id','Timestamp', 'Price'])
-    csv_df.to_csv("data-saves/backup_data.csv")
-    #if 'prices' not in coins_data:
+    coins_data = get_coins_data(currency,days,selected_coins)
+        #if 'prices' not in coins_data:
     #    return "Invalid data format received from CoinGecko", 500
     #when using the inbuilt debugging i found a major flaw it needs a coin to display all the prices
     prices = coins_data['prices']
@@ -94,9 +94,9 @@ def plot():
     df = pd.DataFrame(prices, columns=['Timestamp', 'Price'])
     
     # Make sure this works
-    coin_id = ""
+    title_name = ""
     for coin in selected_coins:
-        coin_id+= f"{coin}'s +"
+        title_name += f"{coin}'s +"
     # This plots the data displayed to a plot in the background (doesn't show)
     plt.figure(figsize=(10, 5))
     df.plot(
@@ -106,14 +106,14 @@ def plot():
         color='blue',
         alpha=0.9,
         # This is needing a change (thought I changed this but apparently not) 
-        title=f'{coin_id.capitalize()} Price Over Last {days} Days'
+        title=f'{title_name.capitalize()} Price Over Last {days} Days'
     )
     # You know funnily this pulls an error and it says its unlikely to work (becuase its outside the main loop (not really but matplotlib thinks that)) but it hasnt failed yet soooooo?
     # Saves plot to a file in static (flask checks here )
     plot_path = 'static/data.jpg'
     plt.savefig(plot_path)
     plt.close()
-    return render_template('result.html', coin_id=coin_id, days=days, plot_path=plot_path, items=get_coins())
+    return render_template('result.html')
 #Main Loop
 # Because my code is laid in variables and the Flask routing the actual main loop is two lines and my code is super readable debugging is left on for debugging purposes
 if __name__ == '__main__':
