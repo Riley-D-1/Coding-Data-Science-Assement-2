@@ -39,9 +39,8 @@ def get_coins(currency):
 def get_coins_data(currency,days,coin_list):
     params2= {
             'vs_currency': currency,    
-            'precision': '5',
-            'from': '',
-            'to': '',
+            'precision': 5,
+            'days':days,
         
         }
     
@@ -50,11 +49,12 @@ def get_coins_data(currency,days,coin_list):
         for coin_id in coin_list:
             url2=f"https://api.coingecko.com/api/v3/coins/{coin_id}/market_chart/range"  
             response=requests.get(url2,params=params2,headers=headers)
-            df.
+            alldata=[""]
+            list+response.json()
         info = response.json()
         coins_df = pd.DataFrame.from_dict(info)
         coins_df.to_csv('data-saves/backup_data.csv')
-        return coins_df.to_dict()
+        return coins_df.to_dict(orient='records')
     except requests.RequestException:
         # Fallback to reading from a csv file if the API request fails
         if os.path.exists('data-saves/backup_data.csv'):
@@ -118,6 +118,6 @@ def plot():
     plt.close()
     return render_template('result.html')
 #Main Loop
-# Because my code is laid in variables and the Flask routing the actual main loop is two lines and my code is super readable debugging is left on for debugging purposes (shocking)
+# Because my code is laid in variables and the Flask routing the actual main loop is two lines and my code is super readable. debugging is left on for debugging purposes (shocking)
 if __name__ == '__main__':
     app.run(debug=True)
