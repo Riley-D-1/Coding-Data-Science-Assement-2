@@ -11,7 +11,8 @@ app = Flask(__name__)
 token_place=open("token.txt", "r")
 api_key= token_place.readline()
 
-# Function defining
+# Function 
+
 def get_coins(currency):
     url = 'https://api.coingecko.com/api/v3/coins/markets'
     params = {
@@ -23,10 +24,10 @@ def get_coins(currency):
     try:
         response = requests.get(url, params=params)
         data = response.json()
-        coin_list_df = data["id"]
-        coin_list_df = pd.DataFrame(data,columns=['Coin Id'])
+        coin_list_df = pd.DataFrame.from_dict(data)
+        coin_list_df.drop('current_price','market_cap','market_cap_rank','fully_diluted_valuation','total_volume','high_24h','low_24h','price_change_24h','price_change_percentage_24h','market_cap_change_24h','market_cap_change_percentage_24h','circulating_supply','total_supply','max_supply','ath','ath_change_percentage','ath_date','atl','atl_change_percentage','atl_date','roi','last_updated')
         coin_list_df.to_csv('data-saves/backup_coin_list.csv')
-        return response.json()
+        return coin_list_df
     except requests.RequestException:
         # Fallback to reading from a csv file if the API request fails
         if os.path.exists('data-saves/backup_coin_list.csv'):
