@@ -25,7 +25,7 @@ def get_coins(currency):
         response = requests.get(url, params=params)
         data = response.json()
         coin_list_df = pd.DataFrame.from_dict(data)
-        coin_list_df.drop('current_price','market_cap','market_cap_rank','fully_diluted_valuation','total_volume','high_24h','low_24h','price_change_24h','price_change_percentage_24h','market_cap_change_24h','market_cap_change_percentage_24h','circulating_supply','total_supply','max_supply','ath','ath_change_percentage','ath_date','atl','atl_change_percentage','atl_date','roi','last_updated')
+        coin_list_df.drop(coin_list_df.iloc[:, 1:26], axis=1,inplace=True)
         coin_list_df.to_csv('data-saves/backup_coin_list.csv')
         return coin_list_df
     except requests.RequestException:
