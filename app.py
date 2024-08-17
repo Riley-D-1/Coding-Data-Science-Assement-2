@@ -25,39 +25,41 @@ def get_coins(currency):
         response = requests.get(url, params=params)
         data = response.json()
         coin_list_df = pd.DataFrame.from_dict(data)
-        coin_list_df.drop(coin_list_df.iloc[:, 1:26], axis=1,inplace=True)
+        coin_list_df.drop(coin_list_df.iloc[:, 2:26], axis=1,inplace=True)
         coin_list_df.to_csv('data-saves/backup_coin_list.csv')
-        return coin_list_df
+        return coin_list_df.to_dict(orient="records")
     except requests.RequestException:
         # Fallback to reading from a csv file if the API request fails
         if os.path.exists('data-saves/backup_coin_list.csv'):
-            df = pd.read_csv('data-saves/backup_coin_list.csv', on_bad_lines='warn')
-            return df
+            coin_list_backup_df = pd.read_csv('data-saves/backup_coin_list.csv', on_bad_lines='warn')
+            return coin_list_backup_df.to_dict(orient="records")
         return("Error fetching data from CoinGecko and no backup data available", 500)
 
 
 def get_coins_data(currency,days,coin_list):
     params2= {
-                'vs_currency': currency,
-                'id': '6',
-                'precision': '5',
-                'x-cg-pro-api-key': api_key,
-                'days': days,
-                'interval': 'daily',
+            'vs_currency': currency,    
+            'precision': '5',
+            'from': '',
+            'to': '',
         
         }
+    
+    headers={'"x-cg-demo-api-key': api_key}
     try:
         for coin_id in coin_list:
-            url2=f"https://api.coingecko.com/api/v3/coins/{coin_id}/market_chart"
-            response=requests.get(url2,params=params2)
-        coins_df = pd.DataFrame(response,columns=['Coin Id','Timestamp','Price'])
+            url2=f"https://api.coingecko.com/api/v3/coins/{coin_id}/market_chart/range"  
+            response=requests.get(url2,params=params2,headers=headers)
+            df.
+        info = response.json()
+        coins_df = pd.DataFrame.from_dict(info)
         coins_df.to_csv('data-saves/backup_data.csv')
-        return coins_df
+        return coins_df.to_dict()
     except requests.RequestException:
         # Fallback to reading from a csv file if the API request fails
         if os.path.exists('data-saves/backup_data.csv'):
             df = pd.read_csv('data-saves/backup_data.csv', on_bad_lines='warn')
-            return df
+            return df.to_dict()
         return("Error fetching data from CoinGecko and no backup data available", 500)
 
 
@@ -92,7 +94,7 @@ def plot():
     prices = coins_data['prices']
 
     #Convert to DataFrame for Pandas
-    df = pd.DataFrame(prices, columns=['Timestamp', 'Price'])
+    df2 = pd.DataFrame(prices, columns=['Timestamp', 'Price'])
     
     # Make sure this works
     title_name = ""
@@ -100,7 +102,7 @@ def plot():
         title_name += f"{coin}'s +"
     # This plots the data displayed to a plot in the background (doesn't show)
     plt.figure(figsize=(10, 5))
-    df.plot(
+    df2.plot(
         kind='line',
         x='Timestamp',
         y='Price',
@@ -116,6 +118,6 @@ def plot():
     plt.close()
     return render_template('result.html')
 #Main Loop
-# Because my code is laid in variables and the Flask routing the actual main loop is two lines and my code is super readable debugging is left on for debugging purposes
+# Because my code is laid in variables and the Flask routing the actual main loop is two lines and my code is super readable debugging is left on for debugging purposes (shocking)
 if __name__ == '__main__':
     app.run(debug=True)

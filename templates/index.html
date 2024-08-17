@@ -40,7 +40,7 @@
       <div class="dropdown-content">
         {% for item in items %}
           <label>
-            <input type="checkbox" name="coins" value="{{ item.id }}"> {{ item.name }} ({{ item.symbol.upper() }})
+            <input type="checkbox" name="coins" value="{{ item.id }}"> {{ item.id.capitalize() }} ({{ item.symbol.upper() }})
           </label>
         {% endfor %}
       </div>
