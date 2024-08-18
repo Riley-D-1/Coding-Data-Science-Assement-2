@@ -36,22 +36,23 @@ def get_coins(currency):
         return("Error fetching data from CoinGecko and no backup data available", 500)
 
 
-def get_coins_data(currency,days,coin_list):
+def get_coins_data(currency,coin_list):
     params2= {
             'vs_currency': currency,    
             'precision': 5,
-            'days':days,
+            'days':365,
         
         }
     
     headers={'"x-cg-demo-api-key': api_key}
     try:
         for coin_id in coin_list:
-            url2=f"https://api.coingecko.com/api/v3/coins/{coin_id}/market_chart"  
+            url2=f"https://api.coingecko.com/api/v3/coins/{coin_id}/ohlc"  
             response=requests.get(url2,params=params2,headers=headers)
-            alldata=[""]
-            alldata.append(response.json())
-        coins_df = pd.DataFrame.from_dict(alldata)
+        coins_df = pd.DataFrame.from_dict(response)   
+        coins_df.columns = ["date", "open", "high", "low", "close"]
+        coins_df["date"] = pd.to_datetime(coins_df["date"], unit = "ms")
+        coins_df.set_index("date", inplace = True)   
         coins_df.to_csv('data-saves/backup_data.csv')
         return coins_df
     except requests.RequestException:
@@ -86,7 +87,7 @@ def plot():
     # Redirecter in case you try to glitch the application (type in a link)
     if not selected_coins:
         return redirect(url_for('home'))
-    coins_data = get_coins_data(currency,days,selected_coins)
+    coins_data = get_coins_data(currency,selected_coins)
         #if 'prices' not in coins_data:
     #    return "Invalid data format received from CoinGecko", 500
     #when using the inbuilt debugging i found a major flaw it needs a coin to display all the prices
