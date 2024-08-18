@@ -58,7 +58,7 @@ def get_coins_data(currency,coin_list,from_,to_):
             data2=response.json()
             coins_data.append(data2)
             if requests.RequestException:
-                print("error"+id)
+                print("error "+id)
         coins_df = pd.DataFrame(coins_data)
         coins_df.drop(coins_df.iloc[:, 1:3], axis=1,inplace=True)
         coins_df.to_csv('data-saves/backup_data.csv')
@@ -93,7 +93,7 @@ def plot():
     # Default to 30 days if no value is provided
     currency = "USD"
     coins_ = pd.read_csv('data-saves/backup_coin_list.csv')
-    coin_list =str(coins_['id'])
+    coin_list = (coins_['id'])
 
     # currency = request.form.get() maybe add this
     
