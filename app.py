@@ -4,12 +4,15 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from flask import Flask, render_template, request, redirect, url_for
 import os
+from datetime import datetime
 
 # Variable setting and Flask initialization
 #Probs need to do an API key that reads from an .env file (wont commit cause of a gitignore bypass)
 app = Flask(__name__)
 token_place=open("token.txt", "r")
 api_key= token_place.readline()
+global time_now
+time_now = datetime.timestamp(datetime.now())
 
 # Function 
 
@@ -36,21 +39,24 @@ def get_coins(currency):
         return("Error fetching data from CoinGecko and no backup data available", 500)
 
 
-def get_coins_data(currency,coin_list):
+def get_coins_data(currency,coin_list,from_,to_):
     params2= {
             'vs_currency': currency,    
             'precision': 5,
-            'days':365,
+            'to':to_,
+            'from':from_,
         
         }
     
+    #Notes- to is current time. from is in the past
     headers={'"x-cg-demo-api-key': api_key}
     try:
-        for coin_id in coin_list:
-            url2=f"https://api.coingecko.com/api/v3/coins/{coin_id}/ohlc"  
+        for id in coin_list:
+            url2=f"https://api.coingecko.com/api/v3/coins/{id}/market_chart/range"  
             response=requests.get(url2,params=params2,headers=headers)
-        coins_df = pd.DataFrame.from_dict(response)   
-        coins_df.columns = ["date", "open", "high", "low", "close"]
+            data=[""]
+            data.append(response)
+        coins_df = pd.DataFrame(data)   
         coins_df["date"] = pd.to_datetime(coins_df["date"], unit = "ms")
         coins_df.set_index("date", inplace = True)   
         coins_df.to_csv('data-saves/backup_data.csv')
@@ -63,6 +69,12 @@ def get_coins_data(currency,coin_list):
         return("Error fetching data from CoinGecko and no backup data available", 500)
 
 
+
+
+    
+def Unix_to_timestamp(days):
+    var =time_now - (days*86400)
+    return int(var)
 
 # Flask routing
 @app.route('/')
@@ -87,7 +99,7 @@ def plot():
     # Redirecter in case you try to glitch the application (type in a link)
     if not selected_coins:
         return redirect(url_for('home'))
-    coins_data = get_coins_data(currency,selected_coins)
+    coins_data = get_coins_data(currency,selected_coins,Unix_to_timestamp(days),int(time_now))
         #if 'prices' not in coins_data:
     #    return "Invalid data format received from CoinGecko", 500
     #when using the inbuilt debugging i found a major flaw it needs a coin to display all the prices
