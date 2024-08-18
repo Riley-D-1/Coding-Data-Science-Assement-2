@@ -54,12 +54,12 @@ def get_coins_data(currency,days,coin_list):
         info = response.json()
         coins_df = pd.DataFrame.from_dict(info)
         coins_df.to_csv('data-saves/backup_data.csv')
-        return coins_df.to_dict(orient='records')
+        return coins_df.to_dict(orient="records")
     except requests.RequestException:
         # Fallback to reading from a csv file if the API request fails
         if os.path.exists('data-saves/backup_data.csv'):
             df = pd.read_csv('data-saves/backup_data.csv', on_bad_lines='warn')
-            return df.to_dict()
+            return df.to_dict(orient="records")
         return("Error fetching data from CoinGecko and no backup data available", 500)
 
 
