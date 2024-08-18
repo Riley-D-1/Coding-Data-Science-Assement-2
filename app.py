@@ -4,6 +4,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from flask import Flask, render_template, request, redirect, url_for
 import os
+import json
 from datetime import datetime
 
 # Variable setting and Flask initialization
@@ -49,16 +50,13 @@ def get_coins_data(currency,coin_list,from_,to_):
         }
     
     #Notes- to is current time. from is in the past
-    headers={'"x-cg-demo-api-key': api_key}
+    headers={'x-cg-demo-api-key': api_key}
     try:
         for id in coin_list:
             url2=f"https://api.coingecko.com/api/v3/coins/{id}/market_chart/range"  
             response=requests.get(url2,params=params2,headers=headers)
-            data=[""]
-            data.append(response)
-        coins_df = pd.DataFrame(data)   
-        coins_df["date"] = pd.to_datetime(coins_df["date"], unit = "ms")
-        coins_df.set_index("date", inplace = True)   
+        coins_df = pd.DataFrame.from_dict(response.json())   
+        coins_df.drop(coins_df.iloc[:, 1:3], axis=1,inplace=True)
         coins_df.to_csv('data-saves/backup_data.csv')
         return coins_df
     except requests.RequestException:
@@ -68,12 +66,9 @@ def get_coins_data(currency,coin_list,from_,to_):
             return df
         return("Error fetching data from CoinGecko and no backup data available", 500)
 
-
-
-
     
 def Unix_to_timestamp(days):
-    var =time_now - (days*86400)
+    var =time_now - (int(days)*86400)
     return int(var)
 
 # Flask routing
@@ -99,12 +94,10 @@ def plot():
     # Redirecter in case you try to glitch the application (type in a link)
     if not selected_coins:
         return redirect(url_for('home'))
-    coins_data = get_coins_data(currency,selected_coins,Unix_to_timestamp(days),int(time_now))
+    coins_data = get_coins_data(currency,selected_coins,Unix_to_timestamp(365),int(time_now))
         #if 'prices' not in coins_data:
     #    return "Invalid data format received from CoinGecko", 500
     #when using the inbuilt debugging i found a major flaw it needs a coin to display all the prices
-
-    #Convert to DataFrame for Pandas
     
     
     # Make sure this works
@@ -115,8 +108,8 @@ def plot():
     plt.figure(figsize=(10, 5))
     coins_data.plot(
         kind='line',
-        x='Timestamp',
-        y='Price',
+        x='date',
+        y='prices',
         color='blue',
         alpha=0.9,
         # This is needing a change (thought I changed this but apparently not) 
