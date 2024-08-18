@@ -12,7 +12,6 @@ from datetime import datetime
 app = Flask(__name__)
 token_place=open("token.txt", "r")
 api_key= token_place.readline()
-global time_now
 time_now = datetime.timestamp(datetime.now())
 
 # Function 
@@ -51,11 +50,15 @@ def get_coins_data(currency,coin_list,from_,to_):
     
     #Notes- to is current time. from is in the past
     headers={'x-cg-demo-api-key': api_key}
+    coins_data = []
     try:
         for id in coin_list:
             url2=f"https://api.coingecko.com/api/v3/coins/{id}/market_chart/range"  
             response=requests.get(url2,params=params2,headers=headers)
-        coins_df = pd.DataFrame.from_dict(response.json())   
+            data2=response.json()
+            coins_data.append(data2)
+
+        coins_df = pd.DataFrame(coins_data)
         coins_df.drop(coins_df.iloc[:, 1:3], axis=1,inplace=True)
         coins_df.to_csv('data-saves/backup_data.csv')
         return coins_df
@@ -88,25 +91,28 @@ def plot():
     days = request.form.get('days', '30')
     # Default to 30 days if no value is provided
     currency = "USD"
-    
+    coins_ = pd.read_csv('data-saves/backup_coin_list.csv')
+    coin_list =str(coins_['id'])
+
     # currency = request.form.get() maybe add this
     
     # Redirecter in case you try to glitch the application (type in a link)
     if not selected_coins:
         return redirect(url_for('home'))
-    coins_data = get_coins_data(currency,selected_coins,Unix_to_timestamp(365),int(time_now))
+    coins_data = get_coins_data(currency,coin_list,Unix_to_timestamp(365),int(time_now))
         #if 'prices' not in coins_data:
     #    return "Invalid data format received from CoinGecko", 500
     #when using the inbuilt debugging i found a major flaw it needs a coin to display all the prices
     
-    
+    plot_info_df = coins_data
+
     # Make sure this works
     title_name = ""
     for coin in selected_coins:
         title_name += f"{coin}'s +"
     # This plots the data displayed to a plot in the background (doesn't show)
     plt.figure(figsize=(10, 5))
-    coins_data.plot(
+    plot_info_df.plot(
         kind='line',
         x='date',
         y='prices',
