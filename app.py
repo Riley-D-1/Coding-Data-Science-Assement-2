@@ -57,7 +57,8 @@ def get_coins_data(currency,coin_list,from_,to_):
             response=requests.get(url2,params=params2,headers=headers)
             data2=response.json()
             coins_data.append(data2)
-
+            if requests.RequestException:
+                print("error"+id)
         coins_df = pd.DataFrame(coins_data)
         coins_df.drop(coins_df.iloc[:, 1:3], axis=1,inplace=True)
         coins_df.to_csv('data-saves/backup_data.csv')
