@@ -50,18 +50,19 @@ def get_coins_data(currency,coin_list,from_,to_):
     
     #Notes- to is current time. from is in the past
     headers={'x-cg-demo-api-key': api_key}
-    coins_data = []
     try:
         for id in coin_list:
             url2=f"https://api.coingecko.com/api/v3/coins/{id}/market_chart/range"  
             response=requests.get(url2,params=params2,headers=headers)
             data2=response.json()
-            coins_data.append(data2)
+            coins_df = pd.DataFrame(data2)
+            coins_df.drop(coins_df.iloc[:, 1:3], axis=1,inplace=True)
+            coins_df.to_csv(f'data-saves/backup{id}_data.csv')
             if requests.RequestException:
                 print("error "+id)
-        coins_df = pd.DataFrame(coins_data)
-        coins_df.drop(coins_df.iloc[:, 1:3], axis=1,inplace=True)
-        coins_df.to_csv('data-saves/backup_data.csv')
+        
+        
+        
         return coins_df
     except requests.RequestException:
         # Fallback to reading from a csv file if the API request fails
