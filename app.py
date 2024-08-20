@@ -105,9 +105,8 @@ def plot():
     combined_df = combined_df.drop(['Unnamed: 0'], axis=1)
     #manipulate to create a prices column with the first vaule of the list and then i'll replace the timestamp column with proper timestamp that th eprogram can display
     combined_df[['date', 'prices']] = combined_df['prices'].str.split(', ', expand=True)
-    combined_df[['date', 'prices']] = combined_df['prices'].str.removesuffix(']')
-    combined_df[['date', 'prices']] = combined_df['date'].str.removeprefix('[')
-
+    combined_df['prices'] = combined_df['prices'].str.replace(']','')
+    combined_df['date'] = combined_df['date'].str.replace('[','')
     #combined_df.loc[combined_df['prices'[1]]]
     #Timestamp colunm change it to readable stamp
     #Need to like iterate through the list and do this.
