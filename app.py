@@ -13,7 +13,7 @@ app = Flask(__name__)
 token_place=open("token.txt", "r")
 api_key= token_place.readline()
 time_now = datetime.timestamp(datetime.now())
-
+PYDEVD_WARN_SLOW_RESOLVE_TIMEOUT=1.0
 # Function 
 
 def get_coins(currency):
@@ -98,23 +98,22 @@ def plot():
         return "Error fetching data from CoinGecko and now using backup data available(The data is most likey from a few days ago or more."
     
     
-    list_={}
+    combined_df = pd.DataFrame({})
     for id in selected_coins:
-        list_[id]=pd.read_csv(f'data-saves/backup{id}_data.csv')
-    combined_df = pd.concat([]) 
-    #remove after debugging
-    print(combined_df)
+        new_df=pd.read_csv(f'data-saves/backup{id}_data.csv')
+        new_df['type'] = id
+        combined_df = pd.concat([combined_df, new_df])
+    combined_df = combined_df.drop(['Unnamed: 0'], axis=1)
     #manipulate to create a prices column with the first vaule of the list and then i'll replace the timestamp column with proper timestamp that th eprogram can display
-    #
-    #timestamp column = prices[0]
-    #prices colum = price[1]
-    #Timestamp colunm change it to readab;e stamp
+    #combined_df['date'] = combined_df['prices'][0]
+    #combined_df.loc[combined_df['prices'[1]]]
+    #Timestamp colunm change it to readable stamp
     #Need to like iterate through the list and do this.
     #datetime_obj=datetime.fromtimestamp(epoch)
-    combined_df
+
     
 
-
+    combined_df.to_csv("test.csv")
     # Diovide by column and the amount og coins that is in the list.
     #Get the time stamps and convert back to human tiem and then plot it  
 
