@@ -59,21 +59,14 @@ def get_coins_data(currency,coin_list,from_,to_):
             coins_df.drop(coins_df.iloc[:, 1:3], axis=1,inplace=True)
             coins_df.to_csv(f'data-saves/backup{id}_data.csv')
             if requests.RequestException:
-                print("error "+id)
-        
-        
-        
-        return coins_df
+                return("error "+id)
+        return ("Sucess, fetching data from CoinGecko", 500)
     except requests.RequestException:
-        # Fallback to reading from a csv file if the API request fails
-        if os.path.exists('data-saves/backup_data.csv'):
-            df = pd.read_csv('data-saves/backup_data.csv', on_bad_lines='warn')
-            return df
-        return("Error fetching data from CoinGecko and no backup data available", 500)
+            return("Error fetching data from CoinGecko and now using backup data available(The data is most likey from a few days ago or more.)", 500)
 
     
 def Unix_to_timestamp(days):
-    var =time_now - (int(days)*86400)
+    var = time_now - (int(days)*86400)
     return int(var)
 
 # Flask routing
@@ -97,16 +90,33 @@ def plot():
     coin_list = (coins_['id'])
 
     # currency = request.form.get() maybe add this
-    
     # Redirecter in case you try to glitch the application (type in a link)
     if not selected_coins:
         return redirect(url_for('home'))
     coins_data = get_coins_data(currency,coin_list,Unix_to_timestamp(365),int(time_now))
-        #if 'prices' not in coins_data:
-    #    return "Invalid data format received from CoinGecko", 500
-    #when using the inbuilt debugging i found a major flaw it needs a coin to display all the prices
+    if coins_data == "Error fetching data from CoinGecko and now using backup data available(The data is most likey from a few days ago or more.)":
+        return "Error fetching data from CoinGecko and now using backup data available(The data is most likey from a few days ago or more."
     
-    plot_info_df = coins_data
+    
+    list_={}
+    for id in selected_coins:
+        list_[id]=pd.read_csv(f'data-saves/backup{id}_data.csv')
+    combined_df = pd.concat([]) 
+    #remove after debugging
+    print(combined_df)
+    #manipulate to create a prices column with the first vaule of the list and then i'll replace the timestamp column with proper timestamp that th eprogram can display
+    #
+    #timestamp column = prices[0]
+    #prices colum = price[1]
+    #Timestamp colunm change it to readab;e stamp
+    #Need to like iterate through the list and do this.
+    #datetime_obj=datetime.fromtimestamp(epoch)
+    combined_df
+    
+
+
+    # Diovide by column and the amount og coins that is in the list.
+    #Get the time stamps and convert back to human tiem and then plot it  
 
     # Make sure this works
     title_name = ""
@@ -114,7 +124,7 @@ def plot():
         title_name += f"{coin}'s +"
     # This plots the data displayed to a plot in the background (doesn't show)
     plt.figure(figsize=(10, 5))
-    plot_info_df.plot(
+    combined_df.plot(
         kind='line',
         x='date',
         y='prices',
