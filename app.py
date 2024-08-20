@@ -107,34 +107,26 @@ def plot():
     combined_df[['date', 'prices']] = combined_df['prices'].str.split(', ', expand=True)
     combined_df['prices'] = combined_df['prices'].str.replace(']','')
     combined_df['date'] = combined_df['date'].str.replace('[','')
-    #combined_df.loc[combined_df['prices'[1]]]
-    #Timestamp colunm change it to readable stamp
+    #combined_df['date'] = combined_df['date'].replace(datetime.fromtimestamp(combined_df['date']))
     #Need to like iterate through the list and do this.
     #datetime_obj=datetime.fromtimestamp(epoch)
-
-    
-
-    combined_df.to_csv("test.csv")
-    # Diovide by column and the amount og coins that is in the list.
-    #Get the time stamps and convert back to human tiem and then plot it  
-
+    combined_df = combined_df.pivot(index='date', columns='type', values='prices',)
     # Make sure this works
     title_name = ""
     for coin in selected_coins:
         title_name += f"{coin}'s +"
     # This plots the data displayed to a plot in the background (doesn't show)
-    plt.figure(figsize=(10, 5))
-    combined_df.plot(
-        kind='line',
-        x='date',
-        y='prices',
-        color='blue',
-        alpha=0.9,
-        # This is needing a change (thought I changed this but apparently not) 
-        title=f'{title_name.capitalize()} Price Over Last {days} Days'
-    )
+    #combined_df.plot(
+    #    kind='line',
+    #    x='date',
+    #    y='prices',
+    #    alpha=0.9,
+    #    title=f'{title_name.capitalize()} Price Over Last {days} Days'
+    #)
+    combined_df.plot(type=combined_df.columns, figsize=(10, 5))
     # You know funnily this pulls an error and it says its unlikely to work (becuase its outside the main loop (not really but matplotlib thinks that)) but it hasnt failed yet soooooo?
     # Saves plot to a file in static (flask checks here )
+    plt.legend()
     plot_path = 'static/data.jpg'
     plt.savefig(plot_path)
     plt.close()
