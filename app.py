@@ -59,7 +59,7 @@ def get_coins_data(currency,coin_list,from_,to_):
             coins_df.drop(coins_df.iloc[:, 1:3], axis=1,inplace=True)
             coins_df.to_csv(f'data-saves/backup{id}_data.csv')
             if requests.RequestException:
-                return("error "+id)
+                print("error "+id)
         return ("Sucess, fetching data from CoinGecko", 500)
     except requests.RequestException:
             return("Error fetching data from CoinGecko and now using backup data available(The data is most likey from a few days ago or more.)", 500)
