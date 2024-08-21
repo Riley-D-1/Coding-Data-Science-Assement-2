@@ -68,6 +68,10 @@ def Unix_to_timestamp(days):
     var = time_now - (int(days)*86400)
     return int(var)
 
+def df_cleaner(comparison_str,vaule):
+    if vaule 
+    return ans
+
 # Flask routing
 @app.route('/')
 def home():
@@ -106,27 +110,22 @@ def plot():
         new_df[['date', 'prices']] = new_df['prices'].str.split(', ', expand=True)
         new_df['prices'] = new_df['prices'].str.replace(']','')
         new_df['date'] = new_df['date'].str.replace('[','')
-        #new_df.drop(['date'])
         new_df['date'] = pd.to_datetime(new_df['date'], unit='ms')
-  
         #Pandas sometiomes mistakes this line    
         new_df['prices']=new_df['prices'].astype(float)
         
         d = timedelta(days = int(days))
         a = time_now_2 - d
         a = str(a).split(' ')[0]
-        print(a)
-        new_df = new_df[new_df.apply(lambda row: row.date.days >= a.day and row.date.month >= a.month and row.date.year >= a.year, axis=1)]
+        for new_df['date'] in new_df:
+            final_df = new_df.apply(df_cleaner(a,new_df['date']))
+
         dfs[id] = new_df
-        plt.plot(new_df['date'], new_df['prices'], label=id)
-#2024-07-22 15:58:38.771675
+        title_name = ''
+        title_name + f'{id}'
+        plt.plot(new_df['date'], new_df['prices'], label=id,title=f'{title_name.capitalize()} Price Over Last {days} Days')
+    #2024-07-22
     plt.legend()
-    # Make sure this works
-    """title_name = ""
-    for coin in selected_coins:
-        title_name += f"{coin}'s+"
-        combined_df
-        combined_df.plot(x='date', xlabel="Date", title=f'{title_name.capitalize()} Price Over Last {days} Days')"""
     # You know funnily this pulls an error and it says its unlikely to work (becuase its outside the main loop (not really but matplotlib thinks that)) but it hasnt failed yet soooooo?
     # Saves plot to a file in static (flask checks here )
     plot_path = 'static/data.jpg'
