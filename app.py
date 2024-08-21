@@ -4,6 +4,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from flask import Flask, render_template, request, redirect, url_for
 import os
+import numpy as np
 from datetime import datetime, timedelta
 
 # Variable setting and Flask initialization
@@ -98,7 +99,7 @@ def plot():
     coins_data = get_coins_data(currency,coin_list,Unix_to_timestamp(365),int(time_now))
     if coins_data == "Error fetching data from CoinGecko and now using backup data available(The data is most likey from a few days ago or more.)":
         print( "Error fetching data from CoinGecko and now using backup data available(The data is most likey from a few days ago or more.")
-
+    plt.figure(figsize=(10,7.5))
     dfs = {}
     for id in selected_coins:
         new_df=pd.read_csv(f'data-saves/backup{id}_data.csv')
@@ -111,14 +112,13 @@ def plot():
         new_df['date'] = pd.to_datetime(new_df['date'], unit='ms')
         #Pandas sometiomes mistakes this line    
         new_df['prices']=new_df['prices'].astype(float)
-        compaison=time_now_2 -timedelta(days=int(days))
+        compaison=time_now_2 - timedelta(days=int(days))
         df = new_df[['date','prices']]
-
         dfs[id] = df
         df=df_cleaner(compaison,new_df)
         print(df)
         plt.plot(df['date'], df['prices'], label=id)
-   
+
     plt.legend()
     # You know funnily this pulls an error and it says its unlikely to work (becuase its outside the main loop (not really but matplotlib thinks that)) but it hasnt failed yet soooooo?
     # Saves plot to a file in static (flask checks here )
