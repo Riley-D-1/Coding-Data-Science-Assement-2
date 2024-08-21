@@ -14,7 +14,7 @@ api_key= token_place.readline()
 time_now = datetime.timestamp(datetime.now())
 time_now_2 = datetime.now()
 PYDEVD_WARN_SLOW_RESOLVE_TIMEOUT=1.0
-# Function 
+# Function setting
 
 def get_coins(currency):
     url = 'https://api.coingecko.com/api/v3/coins/markets'
@@ -114,8 +114,10 @@ def plot():
         new_df['prices']=new_df['prices'].astype(float)
         compaison=time_now_2 -timedelta(days=int(days))
         df = new_df[['date','prices']]
-        df=df.apply(df_cleaner(compaison,new_df))
+
         dfs[id] = new_df
+        df=df_cleaner(compaison,new_df)
+        print(df)
         plt.plot(df['date'], df['prices'], label=id)
     #2024-07-22
     plt.legend()
