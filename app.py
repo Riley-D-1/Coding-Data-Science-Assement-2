@@ -11,7 +11,8 @@ from datetime import datetime, timedelta
 app = Flask(__name__)
 token_place=open("token.txt", "r")
 api_key= token_place.readline()
-time_now = datetime.now()
+time_now = datetime.timestamp(datetime.now())
+time_now_2 = datetime.now()
 PYDEVD_WARN_SLOW_RESOLVE_TIMEOUT=1.0
 # Function 
 
@@ -29,10 +30,6 @@ def get_coins(currency):
         coin_list_df = pd.DataFrame.from_dict(data)
         coin_list_df.drop(coin_list_df.iloc[:, 2:26], axis=1,inplace=True)
         coin_list_df.to_csv('data-saves/backup_coin_list.csv')
-        coin_list_df[['date', 'prices']] = coin_list_df['prices'].str.split(', ', expand=True)
-        coin_list_df['prices'] = coin_list_df['prices'].str.replace(']','')
-        coin_list_df['date'] = coin_list_df['date'].str.replace('[','')
-        coin_list_df['date'] = pd.to_datetime(coin_list_df['date'], unit='ms')
         return coin_list_df.to_dict(orient="records")
     except requests.RequestException:
         # Fallback to reading from a csv file if the API request fails
@@ -115,12 +112,14 @@ def plot():
         #Pandas sometiomes mistakes this line    
         new_df['prices']=new_df['prices'].astype(float)
         
-        d = timedelta(days = days)
-        a = time_now - d
+        d = timedelta(days = int(days))
+        a = time_now_2 - d
+        a = str(a).split(' ')[0]
+        print(a)
         new_df = new_df[new_df.apply(lambda row: row.date.days >= a.day and row.date.month >= a.month and row.date.year >= a.year, axis=1)]
         dfs[id] = new_df
         plt.plot(new_df['date'], new_df['prices'], label=id)
-
+#2024-07-22 15:58:38.771675
     plt.legend()
     # Make sure this works
     """title_name = ""
