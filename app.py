@@ -94,7 +94,7 @@ def plot():
         return redirect(url_for('home'))
     coins_data = get_coins_data(currency,coin_list,Unix_to_timestamp(365),int(time_now))
     if coins_data == "Error fetching data from CoinGecko and now using backup data available(The data is most likey from a few days ago or more.)":
-        return "Error fetching data from CoinGecko and now using backup data available(The data is most likey from a few days ago or more."
+        print( "Error fetching data from CoinGecko and now using backup data available(The data is most likey from a few days ago or more.")
     
     
     combined_df = pd.DataFrame({})
@@ -110,20 +110,13 @@ def plot():
     #combined_df['date'] = combined_df['date'].replace(datetime.fromtimestamp(combined_df['date']))
     #Need to like iterate through the list and do this.
     #datetime_obj=datetime.fromtimestamp(epoch)
-    combined_df = combined_df.pivot(index='date', columns='type', values='prices',)
+    
+    combined_df['prices']=combined_df['prices'].astype(float)
     # Make sure this works
     title_name = ""
     for coin in selected_coins:
-        title_name += f"{coin}'s +"
-    # This plots the data displayed to a plot in the background (doesn't show)
-    #combined_df.plot(
-    #    kind='line',
-    #    x='date',
-    #    y='prices',
-    #    alpha=0.9,
-    #    title=f'{title_name.capitalize()} Price Over Last {days} Days'
-    #)
-    combined_df.plot(type=combined_df.columns, figsize=(10, 5))
+        title_name += f"{coin}'s+"
+    combined_df.plot(x='date', xlabel="Date", title=f'{title_name.capitalize()} Price Over Last {days} Days')
     # You know funnily this pulls an error and it says its unlikely to work (becuase its outside the main loop (not really but matplotlib thinks that)) but it hasnt failed yet soooooo?
     # Saves plot to a file in static (flask checks here )
     plt.legend()
