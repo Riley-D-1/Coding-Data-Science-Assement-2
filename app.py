@@ -68,9 +68,8 @@ def Unix_to_timestamp(days):
     var = time_now - (int(days)*86400)
     return int(var)
 
-def df_cleaner(comparison_str,vaule):
-    if vaule 
-    return ans
+def df_cleaner(comparison_str,df):
+    return df[df['date'] >= comparison_str]
 
 # Flask routing
 @app.route('/')
@@ -113,17 +112,11 @@ def plot():
         new_df['date'] = pd.to_datetime(new_df['date'], unit='ms')
         #Pandas sometiomes mistakes this line    
         new_df['prices']=new_df['prices'].astype(float)
-        
-        d = timedelta(days = int(days))
-        a = time_now_2 - d
-        a = str(a).split(' ')[0]
-        for new_df['date'] in new_df:
-            final_df = new_df.apply(df_cleaner(a,new_df['date']))
-
+        compaison=time_now_2 -timedelta(days=int(days))
+        df = new_df[['date','prices']]
+        df=df.apply(df_cleaner(compaison,new_df))
         dfs[id] = new_df
-        title_name = ''
-        title_name + f'{id}'
-        plt.plot(new_df['date'], new_df['prices'], label=id,title=f'{title_name.capitalize()} Price Over Last {days} Days')
+        plt.plot(df['date'], df['prices'], label=id)
     #2024-07-22
     plt.legend()
     # You know funnily this pulls an error and it says its unlikely to work (becuase its outside the main loop (not really but matplotlib thinks that)) but it hasnt failed yet soooooo?
