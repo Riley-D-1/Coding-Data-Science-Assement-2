@@ -4,7 +4,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from flask import Flask, render_template, request, redirect, url_for
 import os
-import json
+import datetime
 from datetime import datetime
 
 # Variable setting and Flask initialization
@@ -12,7 +12,12 @@ from datetime import datetime
 app = Flask(__name__)
 token_place=open("token.txt", "r")
 api_key= token_place.readline()
-time_now = datetime.timestamp(datetime.now())
+time_now = datetime.datetime.now()
+
+tod = datetime.datetime.now()
+d = datetime.timedelta(days = 50)
+a = tod - d
+print(a)
 PYDEVD_WARN_SLOW_RESOLVE_TIMEOUT=1.0
 # Function 
 
@@ -30,6 +35,10 @@ def get_coins(currency):
         coin_list_df = pd.DataFrame.from_dict(data)
         coin_list_df.drop(coin_list_df.iloc[:, 2:26], axis=1,inplace=True)
         coin_list_df.to_csv('data-saves/backup_coin_list.csv')
+        coin_list_df[['date', 'prices']] = coin_list_df['prices'].str.split(', ', expand=True)
+        coin_list_df['prices'] = coin_list_df['prices'].str.replace(']','')
+        coin_list_df['date'] = coin_list_df['date'].str.replace('[','')
+        coin_list_df['date'] = pd.to_datetime(coin_list_df['date'], unit='ms')
         return coin_list_df.to_dict(orient="records")
     except requests.RequestException:
         # Fallback to reading from a csv file if the API request fails
@@ -97,29 +106,38 @@ def plot():
         print( "Error fetching data from CoinGecko and now using backup data available(The data is most likey from a few days ago or more.")
     
     
-    combined_df = pd.DataFrame({})
+    dfs = {}
     for id in selected_coins:
         new_df=pd.read_csv(f'data-saves/backup{id}_data.csv')
         new_df['type'] = id
-        combined_df = pd.concat([combined_df, new_df])
-    combined_df = combined_df.drop(['Unnamed: 0'], axis=1)
-    #manipulate to create a prices column with the first vaule of the list and then i'll replace the timestamp column with proper timestamp that th eprogram can display
-    combined_df[['date', 'prices']] = combined_df['prices'].str.split(', ', expand=True)
-    combined_df['prices'] = combined_df['prices'].str.replace(']','')
-    combined_df['date'] = combined_df['date'].str.replace('[','')
-    #combined_df['date'] = combined_df['date'].replace(datetime.fromtimestamp(combined_df['date']))
-    #Need to like iterate through the list and do this.
-    #datetime_obj=datetime.fromtimestamp(epoch)
-    
-    combined_df['prices']=combined_df['prices'].astype(float)
+        new_df = new_df.drop(['Unnamed: 0'], axis=1)
+        #manipulate to create a prices column with the first vaule of the list and then i'll replace the timestamp column with proper timestamp that th eprogram can display
+        new_df[['date', 'prices']] = new_df['prices'].str.split(', ', expand=True)
+        new_df['prices'] = new_df['prices'].str.replace(']','')
+        new_df['date'] = new_df['date'].str.replace('[','')
+        #new_df.drop(['date'])
+        new_df['date'] = pd.to_datetime(new_df['date'], unit='ms')
+  
+        #Pandas sometiomes mistakes this line    
+        new_df['prices']=new_df['prices'].astype(float)
+        day = 30
+        month = 5
+        year = 2024
+        new_df = new_df[new_df.apply(lambda row: row.date.days >= day and row.date.month >= month and row.date.year >= year, axis=1)]
+        
+
+        dfs[id] = new_df
+        plt.plot(new_df['date'], new_df['prices'], label=id)
+
+    plt.legend()
     # Make sure this works
-    title_name = ""
+    """title_name = ""
     for coin in selected_coins:
         title_name += f"{coin}'s+"
-    combined_df.plot(x='date', xlabel="Date", title=f'{title_name.capitalize()} Price Over Last {days} Days')
+        combined_df
+        combined_df.plot(x='date', xlabel="Date", title=f'{title_name.capitalize()} Price Over Last {days} Days')"""
     # You know funnily this pulls an error and it says its unlikely to work (becuase its outside the main loop (not really but matplotlib thinks that)) but it hasnt failed yet soooooo?
     # Saves plot to a file in static (flask checks here )
-    plt.legend()
     plot_path = 'static/data.jpg'
     plt.savefig(plot_path)
     plt.close()
