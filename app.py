@@ -4,20 +4,14 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from flask import Flask, render_template, request, redirect, url_for
 import os
-import datetime
-from datetime import datetime
+from datetime import datetime, timedelta
 
 # Variable setting and Flask initialization
 #Probs need to do an API key that reads from an .env file (wont commit cause of a gitignore bypass)
 app = Flask(__name__)
 token_place=open("token.txt", "r")
 api_key= token_place.readline()
-time_now = datetime.datetime.now()
-
-tod = datetime.datetime.now()
-d = datetime.timedelta(days = 50)
-a = tod - d
-print(a)
+time_now = datetime.now()
 PYDEVD_WARN_SLOW_RESOLVE_TIMEOUT=1.0
 # Function 
 
@@ -120,12 +114,10 @@ def plot():
   
         #Pandas sometiomes mistakes this line    
         new_df['prices']=new_df['prices'].astype(float)
-        day = 30
-        month = 5
-        year = 2024
-        new_df = new_df[new_df.apply(lambda row: row.date.days >= day and row.date.month >= month and row.date.year >= year, axis=1)]
         
-
+        d = timedelta(days = days)
+        a = time_now - d
+        new_df = new_df[new_df.apply(lambda row: row.date.days >= a.day and row.date.month >= a.month and row.date.year >= a.year, axis=1)]
         dfs[id] = new_df
         plt.plot(new_df['date'], new_df['prices'], label=id)
 
