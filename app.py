@@ -4,7 +4,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from flask import Flask, render_template, request, redirect, url_for
 import os
-import numpy as np
 from datetime import datetime, timedelta
 
 # Variable setting and Flask initialization
@@ -99,7 +98,7 @@ def plot():
     coins_data = get_coins_data(currency,coin_list,Unix_to_timestamp(365),int(time_now))
     if coins_data == "Error fetching data from CoinGecko and now using backup data available(The data is most likey from a few days ago or more.)":
         print( "Error fetching data from CoinGecko and now using backup data available(The data is most likey from a few days ago or more.")
-    plt.figure(figsize=(10,7.5))
+    plt.figure(figsize=(10,8))
     dfs = {}
     for id in selected_coins:
         new_df=pd.read_csv(f'data-saves/backup{id}_data.csv')
