@@ -1,4 +1,4 @@
-# Cryptocurrency comparison program useage and istalltion guide.
+# Cryptocurrency comparison program usage and installation guide.
 ## What is this program for?
 My program is created for an coding assement. It saves the top 20 coins and their price data for a year and then plots it so you can see the changes in prices and if other coins crash or fall at the same time.
 
