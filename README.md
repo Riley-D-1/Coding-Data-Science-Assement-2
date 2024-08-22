@@ -21,3 +21,5 @@ pip install -r requirements.txt
     - Solution: Don't type in a string
 - I can't see the cryptocurrency  I want to plot?. 
     - Solution: In the getcoins function change the vaule in the params dictionary to create more pages and they should hypothetically work. However most people won't want to plot anymore than the Top 20 coins.
+- I can't do .x of a day?
+    - Coin gecko only updates their cyrptocurrency data daily for free API users.

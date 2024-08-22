@@ -98,7 +98,7 @@ def plot():
     coins_data = get_coins_data(currency,coin_list,Unix_to_timestamp(365),int(time_now))
     if coins_data == "Error fetching data from CoinGecko and now using backup data available(The data is most likey from a few days ago or more.)":
         print( "Error fetching data from CoinGecko and now using backup data available(The data is most likey from a few days ago or more.")
-    plt.figure(figsize=(10,8))
+    plt.figure(figsize=(8,8))
     dfs = {}
     for id in selected_coins:
         new_df=pd.read_csv(f'data-saves/backup{id}_data.csv')
@@ -117,7 +117,10 @@ def plot():
         df=df_cleaner(compaison,new_df)
         print(df)
         plt.plot(df['date'], df['prices'], label=id)
-
+    plt.ylabel(f"Price in {currency}")
+    plt.xlabel("Timestamp")
+    plt.xticks(rotation=30)
+    plt.title(f"Price of Cryptocurrency over the last {days} days")
     plt.legend()
     # You know funnily this pulls an error and it says its unlikely to work (becuase its outside the main loop (not really but matplotlib thinks that)) but it hasnt failed yet soooooo?
     # Saves plot to a file in static (flask checks here )
