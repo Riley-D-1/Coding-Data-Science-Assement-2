@@ -90,8 +90,6 @@ def plot():
     currency = "USD"
     coins_ = pd.read_csv('data-saves/backup_coin_list.csv')
     coin_list = (coins_['id'])
-
-    # currency = request.form.get() maybe add this
     # Redirecter in case you try to glitch the application (type in a link)
     if not selected_coins:
         return redirect(url_for('home'))
@@ -104,7 +102,7 @@ def plot():
         new_df=pd.read_csv(f'data-saves/backup{id}_data.csv')
         new_df['type'] = id
         new_df = new_df.drop(['Unnamed: 0'], axis=1)
-        #manipulate to create a prices column with the first vaule of the list and then i'll replace the timestamp column with proper timestamp that th eprogram can display
+        #manipulate to create a prices column with the first vaule of the list and then i'll replace the timestamp column with proper timestamp that the program can display
         new_df[['date', 'prices']] = new_df['prices'].str.split(', ', expand=True)
         new_df['prices'] = new_df['prices'].str.replace(']','')
         new_df['date'] = new_df['date'].str.replace('[','')
